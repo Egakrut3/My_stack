@@ -4,30 +4,39 @@
 #include "Colored_printf.h"
 #include <errno.h>
 #include <assert.h>
+#include <stdlib.h>
 
-#define __PRINT_LINE__() fprintf(stderr, "Error found, file " __FILE__ ", line %d\n", __LINE__)
+#define PRINT_LINE() fprintf(stderr, "Error found, file " __FILE__ ", line %d\n", __LINE__)
 
-#ifdef _DEBUG //TODO - _STACK_DEBUG
+#define CLEAR_RESOURCES()   \
+do                          \
+{                           \
+    FINAL_CODE              \
+} while (false)
 
-#define ON_DEBUG(...) __VA_ARGS__
+#define CHECK_FUNC(func, ...)       \
+do                                  \
+{                                   \
+    if (func(__VA_ARGS__))          \
+    {                               \
+        PRINT_LINE();               \
+        perror(#func " failed");    \
+        CLEAR_RESOURCES();          \
+        return errno;               \
+    }                               \
+} while (false)
 
-#else
-
-#define ON_DEBUG(...)
+//TODO - is it necessary?
+#define MAIN_CHECK_FUNC(func, ...)  \
+do                                  \
+{                                   \
+    if (func(__VA_ARGS__))          \
+    {                               \
+        PRINT_LINE();               \
+        perror(#func " failed");    \
+        CLEAR_RESOURCES();          \
+        return 0;                   \
+    }                               \
+} while (false)
 
 #endif
-
-struct Var_info
-{
-    char const *var_name,
-               *creator_function,
-               *creator_file;
-    ssize_t creator_line;
-};
-
-errno_t Var_info_ctor(Var_info *var_info_ptr, char const *var_name,
-                                              char const *creator_function,
-                                              char const *creator_file,
-                                              ssize_t creator_line);
-
-errno_t Var_info_ctor

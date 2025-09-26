@@ -32,12 +32,12 @@ make_object = $(call make_bin_path, $(1)) : $(call make_src_path, $(1)); \
 all : prepare $(call make_bin_path, $(OBJ))
 	@$(CXX) $(CXX_FLAGS) $(call make_bin_path, $(OBJ)) -L$(LIB_DIR) $(addprefix -l, $(LIBS)) -o $(TARGET)
 	@echo Compilation end
+	@$(TARGET)
 
 prepare :
 	@mkdir -p bin
 
 $(call make_object, main)
-
 
 clean:
 	@rm -rf bin
