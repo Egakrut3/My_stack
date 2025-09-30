@@ -9,7 +9,7 @@ make_src_path = $(addprefix $(SRC_DIR), $(addsuffix $(SRC_SUF), $(1)))
 H_DIR = ./include/
 
 LIB_DIR = static_libs/
-LIBS = Colored_printf
+LIBS = Colored_printf My_stack
 
 CXX = g++
 CXX_FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline   \
@@ -20,18 +20,22 @@ CXX_FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-
 -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits           \
 -Wwrite-strings -Werror=vla -D_EJUDGE_CLIENT_SIDE -D__USE_MINGW_ANSI_STDIO -D_DEBUG
 
+TARGET_LIB = $(addprefix $(LIB_DIR), libMy_stack.a)
 TARGET = $(addprefix $(BIN_DIR), Stack.exe)
 
-OBJ = My_stack main
+OBJ = My_stack
 
 make_object = $(call make_bin_path, $(1)) : $(call make_src_path, $(1)); \
 @$(CXX) $(CXX_FLAGS) -c $$< -I $(H_DIR) -o $$@
 
-.PHONY : all prepare clean
+.PHONY : all prepare test clean
 
 all : prepare $(call make_bin_path, $(OBJ))
-	@$(CXX) $(CXX_FLAGS) $(call make_bin_path, $(OBJ)) -L$(LIB_DIR) $(addprefix -l, $(LIBS)) -o $(TARGET)
+	@ar rcs $(TARGET_LIB) $(call make_bin_path, $(OBJ))
 	@echo Compilation end
+
+test : all $(call make_bin_path, main)
+	@$(CXX) $(CXX_FLAGS) $(call make_bin_path, main) -L$(LIB_DIR) $(addprefix -l, $(LIBS)) -o $(TARGET)
 	@$(TARGET)
 
 prepare :

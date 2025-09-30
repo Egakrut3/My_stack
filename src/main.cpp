@@ -25,6 +25,10 @@ int main(int const argc, char const *const *const argv) {
     My_stack_pop(&stk, nullptr);
     STACK_DUMP(stderr, stk, 0);
 
+    char *const ptr = (char *)(&stk);
+    *ptr = 0;
+    STACK_DUMP(stderr, stk, My_stack_verify(&stk));
+
     colored_printf(GREEN, BLACK, "\n\n\nCOMMIT GITHUB\n\n");
     CLEAR_RESOURCES();
     return 0;

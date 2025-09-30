@@ -5,17 +5,14 @@
 
 typedef int stack_elem_t;
 char const stack_elem_str[] = "int",
-           stack_elem_frm[] = "%d";
-
-size_t const CANARY_SIZE = 2,
-             CANARY_NUM = 1;
-char const CANARY_PARTS[CANARY_SIZE] = {
-    (char)0XFA,
-    (char)0XCE,
-};
+           stack_elem_frm[] = "%d",
+           stack_canary_frm[] = "%#X";
+size_t const CANARY_NUM = 1;
+stack_elem_t const BUFFER_CANARY = 0XFACE'FACE;
+size_t const CANARY = 0XFACE'FACE'FACE'FACE;
 
 struct My_stack {
-    char              canary_beg[CANARY_NUM][CANARY_SIZE];
+    size_t            beg_canary[CANARY_NUM];
 
     size_t            size,
                       capacity;
@@ -24,7 +21,7 @@ struct My_stack {
 
     bool              is_valid;
 
-    char              canary_end[CANARY_NUM][CANARY_SIZE];
+    size_t            end_canary[CANARY_NUM];
 };
 
 errno_t My_stack_Ctor(My_stack *stack_ptr, size_t start_capacity
