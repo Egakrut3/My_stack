@@ -8,6 +8,9 @@ int main(int const argc, char const *const *const argv) {
 #define FINAL_CODE
 
     STACK_CREATE(stk, 1);
+#undef FINAL_CODE
+#define FINAL_CODE My_stack_Dtor(&stk);
+
     STACK_DUMP(stderr, stk, 0);
     My_stack_pop(&stk, nullptr);
     My_stack_push(&stk, 4);
