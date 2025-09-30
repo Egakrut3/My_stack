@@ -184,10 +184,15 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
     fprintf_s(out_stream, "\t}\n");
 
     fprintf_s(out_stream, "\tbuffer[%zu] = [%p] {\n", stack_ptr->capacity, stack_ptr->buffer);
-    for (size_t i = 0; i < stack_ptr->capacity; ++i) {
+    for (size_t i = 0; i < stack_ptr->size; ++i) {
         fprintf_s(out_stream, "\t\t[%zu] = ", i);
         fprintf_s(out_stream, stack_elem_frm, stack_ptr->buffer[i]);
         fprintf_s(out_stream, "\n");
+    }
+    for (size_t i = stack_ptr->size; i < stack_ptr->capacity; ++i) {
+        fprintf_s(out_stream, "\t\t[%zu] = ", i);
+        fprintf_s(out_stream, stack_elem_frm, stack_ptr->buffer[i]);
+        fprintf_s(out_stream, "(Out of range)\n");
     }
     fprintf_s(out_stream, "\t}\n");
 
