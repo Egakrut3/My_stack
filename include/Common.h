@@ -9,7 +9,8 @@
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <stdio.h>
 
-#define PRINT_LINE() fprintf(stderr, "Error found, file " __FILE__ ", line %d\n", __LINE__)
+#define PRINT_LINE() colored_error_printf(RED, BLACK,                                               \
+                                          "Error found, file " __FILE__ ", line %d\n", __LINE__)
 
 #define CLEAR_RESOURCES()   \
 do {                        \
