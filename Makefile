@@ -18,11 +18,11 @@ CXX_FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-
 -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers -Wlogical-op                      \
 -Wno-missing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith          \
 -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits           \
--Wwrite-strings -Werror=vla -D_EJUDGE_CLIENT_SIDE -D__USE_MINGW_ANSI_STDIO #-D_DEBUG
+-Wwrite-strings -Werror=vla -D_EJUDGE_CLIENT_SIDE -D__USE_MINGW_ANSI_STDIO -D_DEBUG
 
-TARGET = $(addprefix $(BIN_DIR), Onegin.exe)
+TARGET = $(addprefix $(BIN_DIR), Stack.exe)
 
-OBJ = main
+OBJ = My_stack main
 
 make_object = $(call make_bin_path, $(1)) : $(call make_src_path, $(1)); \
 @$(CXX) $(CXX_FLAGS) -c $$< -I $(H_DIR) -o $$@
@@ -36,6 +36,8 @@ all : prepare $(call make_bin_path, $(OBJ))
 
 prepare :
 	@mkdir -p bin
+
+$(call make_object, My_stack)
 
 $(call make_object, main)
 
