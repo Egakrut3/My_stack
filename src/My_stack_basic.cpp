@@ -1,6 +1,6 @@
 #include "My_stack.h"
 
-errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t const start_capacity
+errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t start_capacity
                       ON_DEBUG(, Var_info const var_info)) {
     assert(stack_ptr); assert(!stack_ptr->is_valid); assert(start_capacity);
     ON_DEBUG(assert(var_info.position.file_name); assert(var_info.name);)
@@ -8,6 +8,9 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t const start_capacity
 #undef FINAL_CODE
 #define FINAL_CODE
 
+    if (start_capacity < STACK_MIN_CAPACITY) {
+        start_capacity = STACK_MIN_CAPACITY;
+    }
     stack_elem_t *const new_buffer = (stack_elem_t *)calloc(start_capacity + 2 * CANARY_NUM,
                                                             sizeof(stack_elem_t));
 
@@ -33,7 +36,7 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t const start_capacity
     }
 
     for (size_t i = 0; i < CANARY_NUM; ++i) {
-        (stack_ptr->buffer - CANARY_NUM)         [i] = BUFFER_CANARY;
+        (stack_ptr->buffer - CANARY_NUM)[i] = BUFFER_CANARY;
     }
     for (size_t i = 0; i < CANARY_NUM; ++i) {
         (stack_ptr->buffer + stack_ptr->capacity)[i] = BUFFER_CANARY;
@@ -86,7 +89,7 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
     }
 
     for (size_t i = 0; i < CANARY_NUM; ++i) {
-        if ((stack_ptr->buffer - CANARY_NUM)         [i] != BUFFER_CANARY or
+        if ((stack_ptr->buffer - CANARY_NUM)[i]          != BUFFER_CANARY or
             (stack_ptr->buffer + stack_ptr->capacity)[i] != BUFFER_CANARY) {
             err |= STACK_BUFFER_CANARY_SPOILED;
         }
@@ -182,103 +185,4 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
 
     fprintf_s(out_stream, "}\n");
     CLEAR_RESOURCES();
-}
-
-errno_t My_stack_push(My_stack *const stack_ptr, stack_elem_t const elem) {
-    assert(stack_ptr);
-
-#undef FINAL_CODE
-#define FINAL_CODE
-
-    ON_DEBUG(CHECK_FUNC(My_stack_verify, stack_ptr);)
-    if (stack_ptr->size == stack_ptr->capacity) {
-        stack_elem_t *const new_buffer = (stack_elem_t *)realloc(stack_ptr->buffer - 1,
-                                                                 (2 * stack_ptr->capacity +
-                                                                 2 * CANARY_NUM) * sizeof(stack_elem_t));
-        if (!new_buffer) {
-            PRINT_LINE();
-            perror("realloc failed");
-            CLEAR_RESOURCES();
-            return errno;
-        }
-
-        stack_ptr->capacity *= 2;
-        stack_ptr->buffer = new_buffer + CANARY_NUM;
-
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
-            (stack_ptr->buffer - CANARY_NUM)         [i] = BUFFER_CANARY;
-        }
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
-            (stack_ptr->buffer + stack_ptr->capacity)[i] = BUFFER_CANARY;
-        }
-    }
-
-    stack_ptr->buffer[stack_ptr->size++] = elem;
-    CLEAR_RESOURCES();
-    return 0;
-}
-
-errno_t My_stack_pop(My_stack *const stack_ptr, stack_elem_t *const dest) {
-    assert(stack_ptr);
-
-#undef FINAL_CODE
-#define FINAL_CODE
-
-    ON_DEBUG(CHECK_FUNC(My_stack_verify, stack_ptr);)
-    if (!stack_ptr->size) {
-        PRINT_LINE();
-        fprintf_s(stderr, "Stack is empty before pop operation\n");
-        CLEAR_RESOURCES();
-        return ATTEMPT_TO_ACCESS_TOP_FROM_EMPTY;
-    }
-
-    --stack_ptr->size;
-    if (dest) {
-        *dest = stack_ptr->buffer[stack_ptr->size];
-    }
-
-    if (stack_ptr->size < stack_ptr->capacity / 4)
-    {
-        stack_elem_t *const new_buffer = (stack_elem_t *)realloc(stack_ptr->buffer - 1,
-                                                                 (stack_ptr->capacity / 2 +
-                                                                 2 * CANARY_NUM) * sizeof(stack_elem_t));
-        if (!new_buffer) {
-            PRINT_LINE();
-            perror("realloc failed");
-            CLEAR_RESOURCES();
-            return errno;
-        }
-
-        stack_ptr->capacity /= 2;
-        stack_ptr->buffer = new_buffer + CANARY_NUM;
-
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
-            (stack_ptr->buffer - CANARY_NUM)         [i] = BUFFER_CANARY;
-        }
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
-            (stack_ptr->buffer + stack_ptr->capacity)[i] = BUFFER_CANARY;
-        }
-    }
-
-    CLEAR_RESOURCES();
-    return 0;
-}
-
-errno_t My_stack_top(My_stack const *const stack_ptr, stack_elem_t *const dest) {
-    assert(stack_ptr); assert(dest);
-
-#undef FINAL_CODE
-#define FINAL_CODE
-
-    ON_DEBUG(CHECK_FUNC(My_stack_verify, stack_ptr);)
-    if (!stack_ptr->size) {
-        PRINT_LINE();
-        fprintf_s(stderr, "Stack is empty before top operation\n");
-        CLEAR_RESOURCES();
-        return ATTEMPT_TO_ACCESS_TOP_FROM_EMPTY;
-    }
-
-    *dest = stack_ptr->buffer[stack_ptr->size - 1];
-    CLEAR_RESOURCES();
-    return 0;
 }

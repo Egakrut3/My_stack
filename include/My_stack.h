@@ -7,9 +7,19 @@ typedef int stack_elem_t;
 char const stack_elem_str[] = "int",
            stack_elem_frm[] = "%d",
            stack_canary_frm[] = "%#X";
+#ifdef _DEBUG
 size_t const CANARY_NUM = 1;
-stack_elem_t const BUFFER_CANARY = 0XFACE'FACE;
+#else
+size_t const CANARY_NUM = 0;
+#endif
 size_t const CANARY = 0XFACE'FACE'FACE'FACE;
+
+stack_elem_t const BUFFER_CANARY = 0XFACE'FACE;
+size_t const STACK_EXPANSION          = 2; static_assert(STACK_EXPANSION > 1);
+size_t const STACK_REDUCTION_CRITERIA = 4; static_assert(STACK_REDUCTION_CRITERIA > 1);
+size_t const STACK_REDUCTION          = 2; static_assert(STACK_REDUCTION > 1 and
+                                                         STACK_REDUCTION <= STACK_REDUCTION_CRITERIA);
+size_t const STACK_MIN_CAPACITY       = 5; static_assert(STACK_MIN_CAPACITY > 0);
 
 struct My_stack {
     size_t            beg_canary[CANARY_NUM];
@@ -28,10 +38,10 @@ errno_t My_stack_Ctor(My_stack *stack_ptr, size_t start_capacity
                       ON_DEBUG(, Var_info var_info));
 
 #ifdef _DEBUG
-#define STACK_CREATE(name, start_capacity)                                                              \
-My_stack name = {};                                                                                     \
-CHECK_FUNC(My_stack_Ctor, &name, start_capacity,                                                        \
-           Var_info{Position_info{__FILE__, __func__, __LINE__}, #name})
+#define STACK_CREATE(name, start_capacity, handler)                                                              \
+My_stack name = {};                                                     \
+handler(My_stack_Ctor, &name, start_capacity,                           \
+        Var_info{Position_info{__FILE__, __func__, __LINE__}, #name})
 #else
 #define STACK_CREATE(name, start_capacity)          \
 My_stack name = {};                                 \

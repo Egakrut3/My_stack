@@ -23,7 +23,6 @@ do {                                \
         PRINT_LINE();               \
         perror(#func " failed");    \
         CLEAR_RESOURCES();          \
-        return errno;               \
     }                               \
 } while (false)
 

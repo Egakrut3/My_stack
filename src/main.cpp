@@ -7,7 +7,7 @@ int main(int const argc, char const *const *const argv) {
 #undef FINAL_CODE
 #define FINAL_CODE
 
-    STACK_CREATE(stk, 1);
+    STACK_CREATE(stk, 1, MAIN_CHECK_FUNC);
 #undef FINAL_CODE
 #define FINAL_CODE My_stack_Dtor(&stk);
 
@@ -19,6 +19,8 @@ int main(int const argc, char const *const *const argv) {
     STACK_DUMP(stderr, stk, 0B111111);
     stack_elem_t tp = 0;
     My_stack_top(&stk, &tp);
+    fprintf_s(stderr, stack_elem_frm, tp);
+    fprintf_s(stderr, "\n");
     My_stack_pop(&stk, nullptr);
     My_stack_pop(&stk, nullptr);
     STACK_DUMP(stderr, stk, 0);
