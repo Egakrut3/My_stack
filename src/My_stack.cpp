@@ -190,7 +190,7 @@ errno_t My_stack_push(My_stack *const stack_ptr, stack_elem_t const elem) {
 #undef FINAL_CODE
 #define FINAL_CODE
 
-    CHECK_FUNC(My_stack_verify, stack_ptr);
+    ON_DEBUG(CHECK_FUNC(My_stack_verify, stack_ptr);)
     if (stack_ptr->size == stack_ptr->capacity) {
         stack_elem_t *const new_buffer = (stack_elem_t *)realloc(stack_ptr->buffer - 1,
                                                                  (2 * stack_ptr->capacity +
@@ -224,7 +224,7 @@ errno_t My_stack_pop(My_stack *const stack_ptr, stack_elem_t *const dest) {
 #undef FINAL_CODE
 #define FINAL_CODE
 
-    CHECK_FUNC(My_stack_verify, stack_ptr);
+    ON_DEBUG(CHECK_FUNC(My_stack_verify, stack_ptr);)
     if (!stack_ptr->size) {
         PRINT_LINE();
         fprintf_s(stderr, "Stack is empty before pop operation\n");
@@ -270,8 +270,7 @@ errno_t My_stack_top(My_stack const *const stack_ptr, stack_elem_t *const dest) 
 #undef FINAL_CODE
 #define FINAL_CODE
 
-    CHECK_FUNC(My_stack_verify, stack_ptr);
-
+    ON_DEBUG(CHECK_FUNC(My_stack_verify, stack_ptr);)
     if (!stack_ptr->size) {
         PRINT_LINE();
         fprintf_s(stderr, "Stack is empty before top operation\n");
