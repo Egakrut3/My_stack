@@ -14,6 +14,7 @@ int main(int const argc, char const *const *const argv) {
     STACK_DUMP(stderr, stk, 0);
     My_stack_pop(&stk, nullptr);
     My_stack_push(&stk, 4);
+    STACK_DUMP(stderr, stk, 0);
     My_stack_push(&stk, 1);
     My_stack_push(&stk, 10);
     STACK_DUMP(stderr, stk, 0B111111);
@@ -29,6 +30,7 @@ int main(int const argc, char const *const *const argv) {
 
     char *const ptr = (char *)(&stk);
     *ptr = 0;
+    *(ptr + 8) = 0;
     STACK_DUMP(stderr, stk, My_stack_verify(&stk));
 
     colored_printf(GREEN, BLACK, "\n\n\nCOMMIT GITHUB\n\n");

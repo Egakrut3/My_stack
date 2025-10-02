@@ -25,11 +25,12 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t start_capacity
         stack_ptr->beg_canary[i] = CANARY;
     }
 
+    ON_DEBUG(stack_ptr->var_info = var_info;)
     stack_ptr->size              = 0;
     stack_ptr->capacity          = start_capacity;
     stack_ptr->buffer            = new_buffer + CANARY_NUM;
-    ON_DEBUG(stack_ptr->var_info = var_info;)
     stack_ptr->is_valid          = true;
+    ON_DEBUG(stack_ptr->hash_val = My_stack_hash(stack_ptr);)
 
     for (size_t i = 0; i < CANARY_NUM; ++i) {
         stack_ptr->end_canary[i] = CANARY;
@@ -95,6 +96,10 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
         }
     }
 
+    if (stack_ptr->hash_val != My_stack_hash(stack_ptr)) {
+        err |= STACK_HASH_UNMATCH;
+    }
+
     CLEAR_RESOURCES();
     return err;
 }
@@ -135,6 +140,10 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
         fprintf_s(out_stream, "Stack buffer canary spoiled    ");
     }
 
+    if (err & STACK_HASH_UNMATCH) {
+        fprintf_s(out_stream, "Stack hash unmatch    ");
+    }
+
     fprintf_s(out_stream, "\nstack<%s>[%p]"
               ON_DEBUG(" \"%s\" declared in file %s, line %zu in \"%s\" function")
               " {\n",
@@ -143,7 +152,7 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
               stack_ptr->var_info.position.file_name, stack_ptr->var_info.position.line,
               stack_ptr->var_info.position.function_name));
 
-    fprintf_s(out_stream, "\tbeg_canary = [%p] {\n", stack_ptr->beg_canary);
+    fprintf_s(out_stream, "\tbeg_canary[%zu] = [%p] {\n", CANARY_NUM, stack_ptr->beg_canary);
     for (size_t i = 0; i < CANARY_NUM; ++i) {
         fprintf_s(out_stream, "\t\t[%zu] = [%#zX]\n", i, stack_ptr->beg_canary[i]);
     }
@@ -175,9 +184,11 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
     }
     fprintf_s(out_stream, "\t}\n");
 
+    ON_DEBUG(fprintf_s(out_stream, "\thash_val = %llu, must be %llu\n", stack_ptr->hash_val,
+                                                                        My_stack_hash(stack_ptr)));
     fprintf_s(out_stream, "\tis_valid = %d\n", stack_ptr->is_valid);
 
-    fprintf_s(out_stream, "\tend_canary = [%p] {\n", stack_ptr->end_canary);
+    fprintf_s(out_stream, "\tend_canary[%zu] = [%p] {\n", CANARY_NUM, stack_ptr->end_canary);
     for (size_t i = 0; i < CANARY_NUM; ++i) {
         fprintf_s(out_stream, "\t\t[%zu] = [%#zX]\n", i, stack_ptr->end_canary[i]);
     }

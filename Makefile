@@ -23,7 +23,7 @@ CXX_FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-
 TARGET_LIB = $(addprefix $(LIB_DIR), libMy_stack.a)
 TARGET = $(addprefix $(BIN_DIR), Stack.exe)
 
-OBJ = My_stack_basic My_stack_functions
+OBJ = My_stack_common My_stack_basic My_stack_functions
 
 make_object = $(call make_bin_path, $(1)) : $(call make_src_path, $(1)); \
 @$(CXX) $(CXX_FLAGS) -c $$< -I $(H_DIR) -o $$@
@@ -31,6 +31,7 @@ make_object = $(call make_bin_path, $(1)) : $(call make_src_path, $(1)); \
 .PHONY : all prepare test clean
 
 all : prepare $(call make_bin_path, $(OBJ))
+
 	@ar rcs $(TARGET_LIB) $(call make_bin_path, $(OBJ))
 	@echo Compilation end
 
@@ -40,6 +41,8 @@ test : all $(call make_bin_path, main)
 
 prepare :
 	@mkdir -p bin
+
+$(call make_object, My_stack_common)
 
 $(call make_object, My_stack_basic)
 

@@ -19,7 +19,7 @@ errno_t My_stack_push(My_stack *const stack_ptr, stack_elem_t const elem) {
         }
 
         stack_ptr->capacity *= STACK_EXPANSION;
-        stack_ptr->buffer = new_buffer + CANARY_NUM;
+        stack_ptr->buffer            = new_buffer + CANARY_NUM;
 
         for (size_t i = 0; i < CANARY_NUM; ++i) {
             (stack_ptr->buffer - CANARY_NUM)[i] = BUFFER_CANARY;
@@ -30,6 +30,7 @@ errno_t My_stack_push(My_stack *const stack_ptr, stack_elem_t const elem) {
     }
 
     stack_ptr->buffer[stack_ptr->size++] = elem;
+    ON_DEBUG(stack_ptr->hash_val = My_stack_hash(stack_ptr);)
     CLEAR_RESOURCES();
     return 0;
 }
@@ -67,7 +68,7 @@ errno_t My_stack_pop(My_stack *const stack_ptr, stack_elem_t *const dest) {
         }
 
         stack_ptr->capacity /= STACK_REDUCTION;
-        stack_ptr->buffer = new_buffer + CANARY_NUM;
+        stack_ptr->buffer            = new_buffer + CANARY_NUM;
 
         for (size_t i = 0; i < CANARY_NUM; ++i) {
             (stack_ptr->buffer - CANARY_NUM)[i] = BUFFER_CANARY;
@@ -77,6 +78,7 @@ errno_t My_stack_pop(My_stack *const stack_ptr, stack_elem_t *const dest) {
         }
     }
 
+    ON_DEBUG(stack_ptr->hash_val = My_stack_hash(stack_ptr);)
     CLEAR_RESOURCES();
     return 0;
 }

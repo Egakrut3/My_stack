@@ -26,7 +26,6 @@ do {                                \
     }                               \
 } while (false)
 
-//TODO - is it necessary?
 #define MAIN_CHECK_FUNC(func, ...)  \
 do {                                \
     if (func(__VA_ARGS__)) {        \
@@ -35,7 +34,7 @@ do {                                \
         CLEAR_RESOURCES();          \
         return 0;                   \
     }                               \
-} while (false) //TODO - I don't use it in STACK_CREATE
+} while (false)
 
 #ifdef _DEBUG //TODO -
 #define ON_DEBUG(...) __VA_ARGS__
