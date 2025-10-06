@@ -3,9 +3,9 @@
 
 #include "Common.h"
 
-typedef int stack_elem_t;
-char const stack_elem_str[]   = "int",
-           stack_elem_frm[]   = "%d",
+typedef double stack_elem_t;
+char const stack_elem_str[]   = "double",
+           stack_elem_frm[]   = "%lG",
            stack_canary_frm[] = "%#X";
 #ifdef _DEBUG
 size_t const CANARY_NUM = 1;

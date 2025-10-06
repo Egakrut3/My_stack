@@ -54,6 +54,7 @@ void My_stack_Dtor(My_stack *const stack_ptr) {
 #define FINAL_CODE
 
     free(stack_ptr->buffer - CANARY_NUM);
+    stack_ptr->is_valid = false;
 
     CLEAR_RESOURCES();
 }
