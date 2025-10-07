@@ -51,9 +51,9 @@ My_stack name = {};                                                     \
 handler(My_stack_Ctor, &name, start_capacity,                           \
         Var_info{Position_info{__FILE__, __func__, __LINE__}, #name})
 #else
-#define STACK_CREATE(name, start_capacity)          \
+#define STACK_CREATE(name, start_capacity, handler) \
 My_stack name = {};                                 \
-CHECK_FUNC(My_stack_Ctor, &name, start_capacity)
+handler(My_stack_Ctor, &name, start_capacity)
 #endif
 
 void My_stack_Dtor(My_stack *stack_ptr);
