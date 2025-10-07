@@ -8,9 +8,9 @@ errno_t My_stack_push(My_stack *const stack_ptr, stack_elem_t const elem) {
 
     ON_DEBUG(CHECK_FUNC(My_stack_verify, stack_ptr);)
     if (stack_ptr->size == stack_ptr->capacity) {
-        stack_elem_t *const new_buffer = (stack_elem_t *)realloc(stack_ptr->buffer - CANARY_NUM,
+        stack_elem_t *const new_buffer = (stack_elem_t *)realloc(stack_ptr->buffer - STACK_CANARY_NUM,
                                                                  (STACK_EXPANSION * stack_ptr->capacity +
-                                                                 2 * CANARY_NUM) * sizeof(stack_elem_t));
+                                                                 2 * STACK_CANARY_NUM) * sizeof(stack_elem_t));
         if (!new_buffer) {
             PRINT_LINE();
             perror("realloc failed");
@@ -19,12 +19,12 @@ errno_t My_stack_push(My_stack *const stack_ptr, stack_elem_t const elem) {
         }
 
         stack_ptr->capacity *= STACK_EXPANSION;
-        stack_ptr->buffer            = new_buffer + CANARY_NUM;
+        stack_ptr->buffer            = new_buffer + STACK_CANARY_NUM;
 
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
-            (stack_ptr->buffer - CANARY_NUM)[i] = BUFFER_CANARY;
+        for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+            (stack_ptr->buffer - STACK_CANARY_NUM)[i] = BUFFER_CANARY;
         }
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
+        for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
             (stack_ptr->buffer + stack_ptr->capacity)[i] = BUFFER_CANARY;
         }
     }
@@ -57,9 +57,9 @@ errno_t My_stack_pop(My_stack *const stack_ptr, stack_elem_t *const dest) {
     if (stack_ptr->size < stack_ptr->capacity / STACK_REDUCTION_CRITERIA and
         stack_ptr->capacity / STACK_REDUCTION >= STACK_MIN_CAPACITY)
     {
-        stack_elem_t *const new_buffer = (stack_elem_t *)realloc(stack_ptr->buffer - CANARY_NUM,
+        stack_elem_t *const new_buffer = (stack_elem_t *)realloc(stack_ptr->buffer - STACK_CANARY_NUM,
                                                                  (stack_ptr->capacity / STACK_REDUCTION +
-                                                                 2 * CANARY_NUM) * sizeof(stack_elem_t));
+                                                                 2 * STACK_CANARY_NUM) * sizeof(stack_elem_t));
         if (!new_buffer) {
             PRINT_LINE();
             perror("realloc failed");
@@ -68,12 +68,12 @@ errno_t My_stack_pop(My_stack *const stack_ptr, stack_elem_t *const dest) {
         }
 
         stack_ptr->capacity /= STACK_REDUCTION;
-        stack_ptr->buffer            = new_buffer + CANARY_NUM;
+        stack_ptr->buffer            = new_buffer + STACK_CANARY_NUM;
 
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
-            (stack_ptr->buffer - CANARY_NUM)[i] = BUFFER_CANARY;
+        for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+            (stack_ptr->buffer - STACK_CANARY_NUM)[i] = BUFFER_CANARY;
         }
-        for (size_t i = 0; i < CANARY_NUM; ++i) {
+        for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
             (stack_ptr->buffer + stack_ptr->capacity)[i] = BUFFER_CANARY;
         }
     }

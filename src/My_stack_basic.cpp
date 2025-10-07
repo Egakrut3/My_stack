@@ -11,7 +11,7 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t start_capacity
     if (start_capacity < STACK_MIN_CAPACITY) {
         start_capacity = STACK_MIN_CAPACITY;
     }
-    stack_elem_t *const new_buffer = (stack_elem_t *)calloc(start_capacity + 2 * CANARY_NUM,
+    stack_elem_t *const new_buffer = (stack_elem_t *)calloc(start_capacity + 2 * STACK_CANARY_NUM,
                                                             sizeof(stack_elem_t));
 
     if (!new_buffer) {
@@ -21,25 +21,25 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t start_capacity
         return errno;
     }
 
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         stack_ptr->beg_canary[i] = CANARY;
     }
 
     ON_DEBUG(stack_ptr->var_info = var_info;)
     stack_ptr->size              = 0;
     stack_ptr->capacity          = start_capacity;
-    stack_ptr->buffer            = new_buffer + CANARY_NUM;
+    stack_ptr->buffer            = new_buffer + STACK_CANARY_NUM;
     stack_ptr->is_valid          = true;
     ON_DEBUG(stack_ptr->hash_val = My_stack_hash(stack_ptr);)
 
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         stack_ptr->end_canary[i] = CANARY;
     }
 
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
-        (stack_ptr->buffer - CANARY_NUM)[i] = BUFFER_CANARY;
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+        (stack_ptr->buffer - STACK_CANARY_NUM)[i] = BUFFER_CANARY;
     }
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         (stack_ptr->buffer + stack_ptr->capacity)[i] = BUFFER_CANARY;
     }
 
@@ -53,7 +53,7 @@ void My_stack_Dtor(My_stack *const stack_ptr) {
 #undef FINAL_CODE
 #define FINAL_CODE
 
-    free(stack_ptr->buffer - CANARY_NUM);
+    free(stack_ptr->buffer - STACK_CANARY_NUM);
     stack_ptr->is_valid = false;
 
     CLEAR_RESOURCES();
@@ -66,7 +66,7 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
 #undef FINAL_CODE
 #define FINAL_CODE
 
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         if (stack_ptr->beg_canary[i] != CANARY or
             stack_ptr->end_canary[i] != CANARY) {
             err |= STACK_CANARY_SPOILED;
@@ -90,8 +90,8 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
         err |= STACK_NULL_BUFFER;
     }
 
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
-        if ((stack_ptr->buffer - CANARY_NUM)[i]          != BUFFER_CANARY or
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+        if ((stack_ptr->buffer - STACK_CANARY_NUM)[i]          != BUFFER_CANARY or
             (stack_ptr->buffer + stack_ptr->capacity)[i] != BUFFER_CANARY) {
             err |= STACK_BUFFER_CANARY_SPOILED;
         }
@@ -153,9 +153,9 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
               stack_ptr->var_info.position.file_name, stack_ptr->var_info.position.line,
               stack_ptr->var_info.position.function_name));
 
-    fprintf_s(out_stream, "\tbeg_canary[%zu] = [%p] {\n", CANARY_NUM, stack_ptr->beg_canary);
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
-        fprintf_s(out_stream, "\t\t[%zu] = [%#zX]\n", i, stack_ptr->beg_canary[i]);
+    fprintf_s(out_stream, "\tbeg_canary[%zu] = [%p] {\n", STACK_CANARY_NUM, stack_ptr->beg_canary);
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+        fprintf_s(out_stream, "\t\t[%zu] = [%zX]\n", i, stack_ptr->beg_canary[i]);
     }
     fprintf_s(out_stream, "\t}\n");
 
@@ -163,9 +163,9 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
     fprintf_s(out_stream, "\tcapacity = %zu\n", stack_ptr->capacity);
 
     fprintf_s(out_stream, "\tbuffer[%zu] = [%p] {\n", stack_ptr->capacity, stack_ptr->buffer);
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         fprintf_s(out_stream, "\t\t[BEG_CANARY] = ");
-        fprintf_s(out_stream, stack_canary_frm, (stack_ptr->buffer - CANARY_NUM)[i]);
+        fprintf_s(out_stream, stack_canary_frm, (stack_ptr->buffer - STACK_CANARY_NUM)[i]);
         fprintf_s(out_stream, "\n");
     }
     for (size_t i = 0; i < stack_ptr->size; ++i) {
@@ -178,20 +178,20 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
         fprintf_s(out_stream, stack_elem_frm, stack_ptr->buffer[i]);
         fprintf_s(out_stream, "(Out of range)\n");
     }
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         fprintf_s(out_stream, "\t\t[END_CANARY] = ");
         fprintf_s(out_stream, stack_canary_frm, (stack_ptr->buffer + stack_ptr->capacity)[i]);
         fprintf_s(out_stream, "\n");
     }
     fprintf_s(out_stream, "\t}\n");
 
-    ON_DEBUG(fprintf_s(out_stream, "\thash_val = %llu, must be %llu\n", stack_ptr->hash_val,
+    ON_DEBUG(fprintf_s(out_stream, "\thash_val = %llX, must be %llX\n", stack_ptr->hash_val,
                                                                         My_stack_hash(stack_ptr)));
     fprintf_s(out_stream, "\tis_valid = %d\n", stack_ptr->is_valid);
 
-    fprintf_s(out_stream, "\tend_canary[%zu] = [%p] {\n", CANARY_NUM, stack_ptr->end_canary);
-    for (size_t i = 0; i < CANARY_NUM; ++i) {
-        fprintf_s(out_stream, "\t\t[%zu] = [%#zX]\n", i, stack_ptr->end_canary[i]);
+    fprintf_s(out_stream, "\tend_canary[%zu] = [%p] {\n", STACK_CANARY_NUM, stack_ptr->end_canary);
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+        fprintf_s(out_stream, "\t\t[%zu] = [%zX]\n", i, stack_ptr->end_canary[i]);
     }
     fprintf_s(out_stream, "\t}\n");
 
