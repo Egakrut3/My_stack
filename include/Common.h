@@ -53,4 +53,6 @@ struct Var_info {
     char const    *name;
 };
 
+size_t const CANARY = 0XFACE'FACE'FACE'FACE;
+
 #endif

@@ -37,10 +37,10 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t start_capacity
     }
 
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
-        (stack_ptr->buffer - STACK_CANARY_NUM)[i] = BUFFER_CANARY;
+        (stack_ptr->buffer - STACK_CANARY_NUM)[i] = STACK_BUFFER_CANARY;
     }
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
-        (stack_ptr->buffer + stack_ptr->capacity)[i] = BUFFER_CANARY;
+        (stack_ptr->buffer + stack_ptr->capacity)[i] = STACK_BUFFER_CANARY;
     }
 
     CLEAR_RESOURCES();
@@ -91,8 +91,8 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
     }
 
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
-        if ((stack_ptr->buffer - STACK_CANARY_NUM)[i]          != BUFFER_CANARY or
-            (stack_ptr->buffer + stack_ptr->capacity)[i] != BUFFER_CANARY) {
+        if ((stack_ptr->buffer - STACK_CANARY_NUM)[i]    != STACK_BUFFER_CANARY or
+            (stack_ptr->buffer + stack_ptr->capacity)[i] != STACK_BUFFER_CANARY) {
             err |= STACK_BUFFER_CANARY_SPOILED;
         }
     }

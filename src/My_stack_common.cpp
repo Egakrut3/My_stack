@@ -19,11 +19,10 @@ uint64_t My_stack_hash(My_stack const *const stack_ptr) {
     cur_hash = cur_hash * STACK_HASH_MLT + stack_ptr->size;
     cur_hash = cur_hash * STACK_HASH_MLT + stack_ptr->capacity;
     cur_hash = cur_hash * STACK_HASH_MLT + (uint64_t)stack_ptr->buffer;
-    cur_hash = cur_hash * STACK_HASH_MLT + stack_ptr->is_valid;
-
     for (size_t i = 0; i < stack_ptr->size; ++i) {
         cur_hash = cur_hash * STACK_HASH_MLT + *(uint64_t *)&stack_ptr->buffer[i];
     }
+    cur_hash = cur_hash * STACK_HASH_MLT + stack_ptr->is_valid;
 
     CLEAR_RESOURCES();
     return cur_hash;
