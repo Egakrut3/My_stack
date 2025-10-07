@@ -11,15 +11,6 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t start_capacity
     if (start_capacity < STACK_MIN_CAPACITY) {
         start_capacity = STACK_MIN_CAPACITY;
     }
-    stack_elem_t *const new_buffer = (stack_elem_t *)calloc(start_capacity + 2 * STACK_CANARY_NUM,
-                                                            sizeof(stack_elem_t));
-
-    if (!new_buffer) {
-        PRINT_LINE();
-        perror("calloc failed");
-        CLEAR_RESOURCES();
-        return errno;
-    }
 
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         stack_ptr->beg_canary[i] = CANARY;
@@ -28,19 +19,29 @@ errno_t My_stack_Ctor(My_stack *const stack_ptr, size_t start_capacity
     ON_DEBUG(stack_ptr->var_info = var_info;)
     stack_ptr->size              = 0;
     stack_ptr->capacity          = start_capacity;
-    stack_ptr->buffer            = new_buffer + STACK_CANARY_NUM;
-    stack_ptr->is_valid          = true;
-    ON_DEBUG(stack_ptr->hash_val = My_stack_hash(stack_ptr);)
 
-    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
-        stack_ptr->end_canary[i] = CANARY;
+    stack_elem_t *const new_buffer = (stack_elem_t *)calloc(start_capacity + 2 * STACK_CANARY_NUM,
+                                                            sizeof(stack_elem_t));
+    if (!new_buffer) {
+        PRINT_LINE();
+        perror("calloc failed");
+        CLEAR_RESOURCES();
+        return errno;
     }
+    stack_ptr->buffer = new_buffer + STACK_CANARY_NUM;
 
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         (stack_ptr->buffer - STACK_CANARY_NUM)[i] = STACK_BUFFER_CANARY;
     }
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         (stack_ptr->buffer + stack_ptr->capacity)[i] = STACK_BUFFER_CANARY;
+    }
+
+    stack_ptr->is_valid          = true;
+    ON_DEBUG(stack_ptr->hash_val = My_stack_hash(stack_ptr);)
+
+    for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+        stack_ptr->end_canary[i] = CANARY;
     }
 
     CLEAR_RESOURCES();
@@ -65,6 +66,10 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
     errno_t err = 0;
 #undef FINAL_CODE
 #define FINAL_CODE
+
+    if (stack_ptr->hash_val != My_stack_hash(stack_ptr)) {
+        err |= STACK_HASH_UNMATCH;
+    }
 
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
         if (stack_ptr->beg_canary[i] != CANARY or
@@ -97,10 +102,6 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
         }
     }
 
-    if (stack_ptr->hash_val != My_stack_hash(stack_ptr)) {
-        err |= STACK_HASH_UNMATCH;
-    }
-
     CLEAR_RESOURCES();
     return err;
 }
@@ -116,6 +117,10 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
 
     fprintf_s(out_stream, "called at file %s, line %d in \"%s\" function: ",
               from_where.file_name, from_where.line, from_where.function_name);
+
+    if (err & STACK_HASH_UNMATCH) {
+        fprintf_s(out_stream, "Stack hash unmatch    ");
+    }
 
     if (err & STACK_CANARY_SPOILED) {
         fprintf_s(out_stream, "Canary spoiled    "); //TODO - I can't use \t there
@@ -139,10 +144,6 @@ void My_stack_dump(FILE *const out_stream, My_stack const *const stack_ptr,
 
     if (err & STACK_BUFFER_CANARY_SPOILED) {
         fprintf_s(out_stream, "Stack buffer canary spoiled    ");
-    }
-
-    if (err & STACK_HASH_UNMATCH) {
-        fprintf_s(out_stream, "Stack hash unmatch    ");
     }
 
     fprintf_s(out_stream, "\nstack<%s>[%p]"

@@ -57,8 +57,6 @@ handler(My_stack_Ctor, &name, start_capacity)
 
 void My_stack_Dtor(My_stack *stack_ptr);
 
-#define ATTEMPT_TO_ACCESS_TOP_FROM_EMPTY 1000
-
 #define STACK_HASH_UNMATCH               0B10000000000
 #define STACK_CANARY_SPOILED             0B100000000000
 #define STACK_INVALID                    0B1000000000000
@@ -70,9 +68,11 @@ errno_t My_stack_verify(My_stack const *stack_ptr);
 
 void My_stack_dump(FILE *out_stream, My_stack const *stack_ptr,
                    Position_info from_where, errno_t err);
-                   
+
 #define STACK_DUMP(out_stream, name, error)                                             \
 My_stack_dump(out_stream, &name, Position_info{__FILE__, __func__, __LINE__}, error)
+
+#define ATTEMPT_TO_ACCESS_TOP_FROM_EMPTY 1000
 
 errno_t My_stack_push(My_stack *stack_ptr, stack_elem_t elem);
 
