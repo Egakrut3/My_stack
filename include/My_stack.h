@@ -4,9 +4,9 @@
 #include "Common.h"
 
 typedef double stack_elem_t;
-char const stack_elem_str[]   = "double",
-           stack_elem_frm[]   = "%lG",
-           stack_canary_frm[] = "%llX";
+char const stack_elem_str[] = "double";
+#define STACK_ELEM_FRM "%lG"
+#define STACK_CANARY_FRM "%llX"
 #ifdef _DEBUG
 size_t const STACK_CANARY_NUM = 1;
 #else
@@ -66,11 +66,12 @@ void My_stack_Dtor(My_stack *stack_ptr);
 #define STACK_BUFFER_CANARY_SPOILED      0B10000000000000000
 errno_t My_stack_verify(My_stack const *stack_ptr);
 
-void My_stack_dump(FILE *out_stream, My_stack const *stack_ptr,
-                   Position_info from_where, errno_t err);
+errno_t My_stack_dump(FILE *out_stream, My_stack const *stack_ptr,
+                      errno_t err, Position_info from_where,
+                      size_t tab_count, bool need_extra_info);
 
-#define STACK_DUMP(out_stream, name, error)                                             \
-My_stack_dump(out_stream, &name, Position_info{__FILE__, __func__, __LINE__}, error)
+#define STACK_DUMP(out_stream, name, error, handler)                                                    \
+handler(My_stack_dump, out_stream, &name, error, Position_info{__FILE__, __func__, __LINE__}, 0, true)
 
 #define ATTEMPT_TO_ACCESS_TOP_FROM_EMPTY 1000
 

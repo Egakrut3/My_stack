@@ -23,7 +23,7 @@ CXX_FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-
 TARGET_LIB = $(addprefix $(LIB_DIR), libMy_stack.a)
 TARGET = $(addprefix $(BIN_DIR), Stack.exe)
 
-OBJ = My_stack_common My_stack_basic My_stack_functions
+OBJ = Common My_stack_basic My_stack_functions
 
 make_object = $(call make_bin_path, $(1)) : $(call make_src_path, $(1)); \
 @$(CXX) $(CXX_FLAGS) -c $$< -I $(H_DIR) -o $$@
@@ -42,7 +42,7 @@ test : all $(call make_bin_path, main)
 prepare :
 	@mkdir -p bin
 
-$(call make_object, My_stack_common)
+$(call make_object, Common)
 
 $(call make_object, My_stack_basic)
 
@@ -51,4 +51,4 @@ $(call make_object, My_stack_functions)
 $(call make_object, main)
 
 clean:
-	@rm -rf bin
+	@rm -rf bin static_libs/libMy_stack.a

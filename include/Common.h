@@ -17,23 +17,28 @@ do {                        \
     FINAL_CODE              \
 } while (false)
 
-#define CHECK_FUNC(func, ...)       \
-do {                                \
-    if (func(__VA_ARGS__)) {        \
-        PRINT_LINE();               \
-        perror(#func " failed");    \
-        CLEAR_RESOURCES();          \
-    }                               \
+#define CHECK_FUNC(func, ...)                       \
+do {                                                \
+    errno_t err_val = func(__VA_ARGS__);            \
+    if (err_val) {                                  \
+        PRINT_LINE();                               \
+        fprintf_s(stderr, "Code %d: ", err_val);    \
+        perror(#func " failed");                    \
+        CLEAR_RESOURCES();                          \
+        return errno;                               \
+    }                                               \
 } while (false)
 
-#define MAIN_CHECK_FUNC(func, ...)  \
-do {                                \
-    if (func(__VA_ARGS__)) {        \
-        PRINT_LINE();               \
-        perror(#func " failed");    \
-        CLEAR_RESOURCES();          \
-        return 0;                   \
-    }                               \
+#define MAIN_CHECK_FUNC(func, ...)                  \
+do {                                                \
+    errno_t err_val = func(__VA_ARGS__);            \
+    if (err_val) {                                  \
+        PRINT_LINE();                               \
+        fprintf_s(stderr, "Code %d: ", err_val);    \
+        perror(#func " failed");                    \
+        CLEAR_RESOURCES();                          \
+        return 0;                                   \
+    }                                               \
 } while (false)
 
 #ifdef _DEBUG //TODO -
@@ -54,5 +59,7 @@ struct Var_info {
 };
 
 size_t const CANARY = 0XFACE'FACE'FACE'FACE;
+
+errno_t My_calloc(void **dest, size_t num, size_t size);
 
 #endif
