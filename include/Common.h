@@ -1,13 +1,19 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "Colored_printf.h"
 #include <stdint.h>
 #include <errno.h>
 #include <assert.h>
 #include <stdlib.h>
-#define __STDC_WANT_LIB_EXT1__ 1
 #include <stdio.h>
+#include "Colored_printf.h"
+#include <string.h>
+
+#ifdef _DEBUG //TODO -
+#define ON_DEBUG(...) __VA_ARGS__
+#else
+#define ON_DEBUG(...)
+#endif
 
 #define PRINT_LINE() colored_error_printf(RED, BLACK,                                               \
                                           "Error found, file " __FILE__ ", line %d\n", __LINE__)
@@ -40,12 +46,6 @@ do {                                                \
         return 0;                                   \
     }                                               \
 } while (false)
-
-#ifdef _DEBUG //TODO -
-#define ON_DEBUG(...) __VA_ARGS__
-#else
-#define ON_DEBUG(...)
-#endif
 
 struct Position_info {
     char const *file_name,

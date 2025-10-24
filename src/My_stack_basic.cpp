@@ -105,10 +105,13 @@ errno_t My_stack_verify(My_stack const *const stack_ptr) {
     }
 
     for (size_t i = 0; i < STACK_CANARY_NUM; ++i) {
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wfloat-equal"
         if ((stack_ptr->buffer - STACK_CANARY_NUM)[i]    != STACK_BUFFER_CANARY or
             (stack_ptr->buffer + stack_ptr->capacity)[i] != STACK_BUFFER_CANARY) {
             err |= STACK_BUFFER_CANARY_SPOILED;
         }
+        #pragma GCC diagnostic pop
     }
 
     return err;
